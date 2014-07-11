@@ -34,20 +34,14 @@ lines(as.numeric(results_mtx[,3]),ylim=c(0,1), col=rgb(209,209,113,max=255))
 # draws lines at means
 abline(h=colMeans(results_mtx))
 
-# i want to know if the values for importance that random forest model gives jump around as
-# we take different random samples. so the following code plots the importance of predictors over 100 
-# trials of random forest, picking new training and testing sets each time.
+# i want to know if the values for importance that random forest model gives jump around as we
+# generate different models from the same data.
 
 importance_df <- data.frame(model$importance)
 for (x in 1:100) {
   x <- no_nas[,colnames(no_nas)%in%predictors]
   y <- as.factor(no_nas[,"converted"])
-  rand_sample <- sample(nrow(x),length(rownames(x))%/%2)
-  x_train <- x[rand_sample,]
-  y_train <- y[rand_sample]
-  x_test <- x[-rand_sample,]
-  y_test <- y[-rand_sample]
-  model <- randomForest(x=x_train,y=y_train, ,xtest=x_test,ytest=y_test, type="classification")
+  model <- randomForest(x,y, type="classification")
   importance_df <- cbind(importance_df, data.frame(model$importance))
 }
 
@@ -56,11 +50,11 @@ importance_table <- data.frame(sort(rowMeans(importance_df),decreasing=T))
 importance_table <- data.frame(rownames(importance_table),importance_table)
 names(importance_table) <- c("predictor", "importance")
 
-plot(as.numeric(importance_df[1,]),ylim=c(0,40), xlim=c(0,110), pch="-",col="white")
-lines(as.numeric(importance_df[1,]),ylim=c(0,40), pch="-",col=col[1])
+plot(as.numeric(importance_df[1,]),ylim=c(0,20), xlim=c(0,110), pch="-",col="white")
+lines(as.numeric(importance_df[1,]),ylim=c(0,20), pch="-",col=col[1])
 text(x=105,y=as.numeric(importance_df[1,100]),rownames(importance_df)[1], cex=.5)
 for (index in 2:27) {
-  lines(as.numeric(importance_df[index,]),ylim=c(0,40),col=col[index])
+  lines(as.numeric(importance_df[index,]),ylim=c(0,20),col=col[index])
   text(x=105,y=as.numeric(importance_df[index,100]),rownames(importance_df)[index], cex=.5)
 }
 mtext("Variation in Importance of Predictors over 100 random forest models")
