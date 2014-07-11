@@ -1,8 +1,9 @@
 # twc_data_load_and_join
-# i am making changes
 
 require(sqldf)
-WORKINGDIR <- "~/R/twc"
+
+# remember to set workingDir to where your data is!
+WORKINGDIR <- "C:/Users/lwilliams/twc"
 setwd(WORKINGDIR)
 
 twc_call_scoring <- read.table("twc_call_scoring.csv",sep=",",header=TRUE)  
@@ -21,7 +22,7 @@ twc_calls<-sqldf("select
                  on a1.call_id = a2.call_id")
 
 # see what's na
-sapply(twc_calls,function(x) sum(is.na(x)))
+# sapply(twc_calls,function(x) sum(is.na(x)))
 
 
 # make a dummy variable for converted
@@ -34,10 +35,10 @@ no_nas <- subset(twc_calls, select = -c(caller_speech_duration_after_ring,
                                                   caller_speech_duration_before_ring,
                                                   estimated_hold_time_duration))
 
-# I AM ASSUMING that nas in caller_first_speech_time means that the caller never spoke... 
+# i'm guessing that nas in caller_first_speech_time means that the caller never spoke... 
 # i'm going to delete those rows for now, along with the two rows that have nas for almost everything.
 
-no_nas <- na.omit(twc_calls_no_nas)
+no_nas <- na.omit(no_nas)
 
 # make a tab-separated file that can be put into the extractWeka python script.
 
@@ -47,7 +48,7 @@ write.table(data.frame(rep("PFC",length(unique(twc_calls$call_id))),
   file="twc_calls_unique.csv",
   row.names=FALSE, 
   col.names=FALSE,
-  sep="\",
+  sep="\t",
   quote=FALSE)
 
 # these are the predictors from adt
@@ -79,7 +80,8 @@ predictors_names <- c("conversation",
                       "overlapping_speech_duration",
                       "overlapping_silence_count",
                       "overlapping_silence_duration",
-                      'ivr_duration')
+                      "ivr_duration")
+
 
 # and these are the predictors that are in predictors_names and also in the twc data set
 predictors <- predictors_names[predictors_names %in% names(no_nas)]
@@ -88,6 +90,8 @@ predictors <- predictors_names[predictors_names %in% names(no_nas)]
 
 predictors <- c(predictors,"caller_first_half_speech_ratio","analyzed_call_duration")
 
+# note that all of these calls are billable, so both is_billable and revenue are constant throughout,
+# so r won't give a correlation coefficient.
 x <- no_nas[,colnames(no_nas)%in%predictors]
 cor_df <- data.frame(names(x)[order(cor(x$converted,x), decreasing=TRUE)],cor(x$converted,x)[order(cor(x$converted,x), decreasing=TRUE)])
 names(cor_df) <- c("predictor","Rsquared")
@@ -95,3 +99,4 @@ rownames <- cor_df$predictor
 cor_df <- data.frame(cor_df$Rsquared)
 rownames(cor_df) <-rownames
 names(cor_df) <- "Rsquared"
+
