@@ -54,12 +54,10 @@ no_nas <- na.omit(no_nas)
 #   sep="\t",
 #   quote=FALSE)
 
-# these are the predictors from adt
+# these are the predictors from adt. but i'm taking is_billable and revenue out.
 predictors_names <- c("conversation",
                       "product_or_service",
                       "duration",
-                      "is_billable",
-                      "revenue",
                       "agent_ring_count",
                       "agent_speech_duration",
                       "agent_speech_ratio",

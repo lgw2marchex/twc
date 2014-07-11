@@ -1,36 +1,9 @@
-predictors_names <- c("conversation",
-                      "product_or_service",
-                      "duration",
-                      "is_billable",
-                      "revenue",
-                      "converted",
-                      "agent_ring_count",
-                      "agent_speech_duration",
-                      "agent_speech_ratio",
-                      "agent_first_half_speech_ratio",
-                      "agent_spoke_first",
-                      "agent_first_speech_time",
-                      "agent_speech_duration_before_ring",
-                      "agent_speech_duration_after_ring",
-                      "agent_silence_duration",
-                      "agent_silence_ratio",
-                      "caller_ring_count",
-                      "caller_speech_duration",
-                      "caller_speech_ratio",
-                      "caller_spoke_first",
-                      "caller_first_speech_time",
-                      "caller_silence_duration",
-                      "caller_silence_ratio",
-                      "conversation_switch_count",
-                      "overlapping_speech_count",
-                      "overlapping_speech_duration",
-                      "overlapping_silence_count",
-                      "overlapping_silence_duration",
-                      'ivr_duration')
 
 ## svm
 
-x <- no_nas[,colnames(no_nas)%in%predictors_names]
+library("e1071", lib.loc = "\\\\marchex/home/sea/lwilliams/private/R/win-library/3.1")
+
+x <- no_nas[,colnames(no_nas)%in%c(predictors,"converted")]
 rand_sample <- sample(nrow(x),length(rownames(x))%/%2)
 x_train <- x[rand_sample,]
 x_test <- x[-rand_sample,]
@@ -38,7 +11,7 @@ model <- svm(converted ~.,data=x_train)
 
 results_mtx = data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c("accuracy", "precision", "recall"))), stringsAsFactors=F)
 for (i in 1:1000) {
-  x <- no_nas[,colnames(no_nas)%in%predictors_names]
+  x <- no_nas[,colnames(no_nas)%in%c(predictors,"converted")]
   rand_sample <- sample(nrow(x),length(rownames(x))%/%2)
   x_train <- x[rand_sample,]
   x_test <- x[-rand_sample,]
