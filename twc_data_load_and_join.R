@@ -1,4 +1,7 @@
 # twc_data_load_and_join
+# makes data frame called no_nas which can be used for preliminary investigations
+# also makes vector of predictors which is used in modeling to indicate which columns of no_nas to use
+# note that predictors includes 
 
 require(sqldf)
 
@@ -42,14 +45,14 @@ no_nas <- na.omit(no_nas)
 
 # make a tab-separated file that can be put into the extractWeka python script.
 
-write.table(data.frame(rep("PFC",length(unique(twc_calls$call_id))),
-  unique(twc_calls$call_id),
-  rep("Unknown",length(unique(twc_calls$call_id)))),
-  file="twc_calls_unique.csv",
-  row.names=FALSE, 
-  col.names=FALSE,
-  sep="\t",
-  quote=FALSE)
+# write.table(data.frame(rep("PFC",length(unique(twc_calls$call_id))),
+#   unique(twc_calls$call_id),
+#   rep("Unknown",length(unique(twc_calls$call_id)))),
+#   file="twc_calls_unique.csv",
+#   row.names=FALSE, 
+#   col.names=FALSE,
+#   sep="\t",
+#   quote=FALSE)
 
 # these are the predictors from adt
 predictors_names <- c("conversation",
@@ -89,14 +92,3 @@ predictors <- predictors_names[predictors_names %in% names(no_nas)]
 # missing caller_first_half_speech_ratio and analyzed_call_duration, so i'll add those...
 
 predictors <- c(predictors,"caller_first_half_speech_ratio","analyzed_call_duration")
-
-# note that all of these calls are billable, so both is_billable and revenue are constant throughout,
-# so r won't give a correlation coefficient.
-x <- no_nas[,colnames(no_nas)%in%predictors]
-cor_df <- data.frame(names(x)[order(cor(x$converted,x), decreasing=TRUE)],cor(x$converted,x)[order(cor(x$converted,x), decreasing=TRUE)])
-names(cor_df) <- c("predictor","Rsquared")
-rownames <- cor_df$predictor
-cor_df <- data.frame(cor_df$Rsquared)
-rownames(cor_df) <-rownames
-names(cor_df) <- "Rsquared"
-
