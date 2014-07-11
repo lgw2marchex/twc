@@ -30,7 +30,7 @@ abline(h=colMeans(results_mtx))
 
 # note that all of these calls are billable, so both is_billable and revenue are constant throughout,
 # so r won't give a correlation coefficient.
-x <- no_nas[,colnames(no_nas)%in%predictors]
+x <- no_nas[,colnames(no_nas)%in%c(predictors, "converted")]
 cor_df <- data.frame(names(x)[order(cor(x$converted,x), decreasing=TRUE)],cor(x$converted,x)[order(cor(x$converted,x), decreasing=TRUE)])
 names(cor_df) <- c("predictor","Rsquared")
 rownames <- cor_df$predictor
@@ -38,3 +38,4 @@ cor_df <- data.frame(cor_df$Rsquared)
 rownames(cor_df) <-rownames
 names(cor_df) <- "Rsquared"
 cor_df
+

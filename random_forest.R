@@ -4,66 +4,7 @@
 
 library("randomForest", lib.loc="\\\\marchex/home/sea/lwilliams/private/R/win-library/3.1")
 
-# need data without nas
-
-# filter out calls that are outcome_name_toplevel=Misclassified or Other and Misclassified
-adt_calls_no_misclassified <- adt_calls[!(adt_calls$outcome_name_toplevel %in% c("Misclassified", "Other and Misclassified")),]
-
-# no all-na columns
-#category1, category2, estimated_hold_time_duration, caller_speech_duration_before_ring, caller_speech_duration_after_ring
-no_na_cols <- data.frame(adt_calls_no_misclassified[,1:19], # no 20 or 21
-                         adt_calls_no_misclassified[,22:45], # no 46 or 47
-                         adt_calls_no_misclassified[,48:55], # no 56
-                         adt_calls_no_misclassified[,57:58])
-# now just get rid of all rows with nas...
-no_nas <- na.omit(no_na_cols)
-
 #########################
-
-# random forest
-# build a data frame of predictors
-predictors <- c("conversation",
-                "product_or_service",
-                "duration",
-                "is_billable",
-                "revenue",
-                "agent_ring_count",
-                "agent_speech_duration",
-                "agent_speech_ratio",
-                "agent_first_half_speech_ratio",
-                "agent_first_speech_time",
-                "agent_speech_duration_before_ring",
-                "agent_speech_duration_after_ring",
-                "agent_silence_duration",
-                "agent_silence_ratio",
-                "caller_ring_count",
-                "caller_ring_count",
-                "caller_speech_duration",
-                "caller_speech_ratio",
-                "caller_first_speech_time",
-                "caller_silence_duration",
-                "caller_silence_ratio",
-                "conversation_switch_count",
-                "overlapping_speech_count",
-                "overlapping_speech_duration",
-                "overlapping_silence_count",
-                "overlapping_silence_duration",
-                'ivr_duration')
-
-# first try!
-
-x <- no_nas[,colnames(no_nas)%in%predictors]
-y <- as.factor(no_nas[,"converted"])
-rand_sample <- sample(nrow(x),length(rownames(x))%/%2)
-x_train <- x[rand_sample,]
-y_train <- y[rand_sample]
-x_test <- x[-rand_sample,]
-y_test <- y[-rand_sample]
-model <- randomForest(x=x_train,
-                      y=y_train, type="classification")
-test_results(as.numeric(as.character(predict(model,x_test))),y_test)
-
-#####
 
 # make 100 of the models to get an average accuracy, precision, and recall
 
@@ -84,6 +25,14 @@ for (i in 1:100) {
                    recall=results["recall"])
   results_mtx <- rbind(results_mtx,df)
 }
+results_mtx
+# plot them. colors from i want hue, just written in...
+plot(as.numeric(results_mtx[,1]),col="white",ylim=c(0,1))
+lines(as.numeric(results_mtx[,1]),col=rgb(132,222,189,max=255))
+lines(as.numeric(results_mtx[,2]),ylim=c(0,1),col=rgb(209,185,212,max=255))
+lines(as.numeric(results_mtx[,3]),ylim=c(0,1), col=rgb(209,209,113,max=255))
+# draws lines at means
+abline(h=colMeans(results_mtx))
 
 # i want to know if the values for importance that random forest model gives jump around as
 # we take different random samples. so the following code plots the importance of predictors over 100 
