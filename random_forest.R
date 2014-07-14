@@ -37,7 +37,7 @@ abline(h=colMeans(results_mtx))
 # i want to know if the values for importance that random forest model gives jump around as we
 # generate different models from the same data.
 
-importance_df <- data.frame(model$importance)
+importance_df <- data.frame(row.names=predictors)
 for (x in 1:100) {
   x <- no_nas[,colnames(no_nas)%in%predictors]
   y <- as.factor(no_nas[,"converted"])
@@ -47,8 +47,9 @@ for (x in 1:100) {
 
 # sorted table of importances
 importance_table <- data.frame(sort(rowMeans(importance_df),decreasing=T))
-importance_table <- data.frame(rownames(importance_table),importance_table)
-names(importance_table) <- c("predictor", "importance")
+# for joining tables, need a column of predictor names (I think...)
+#importance_table <- data.frame(rownames(importance_table),importance_table)
+names(importance_table) <- c("importance")
 
 plot(as.numeric(importance_df[1,]),ylim=c(0,20), xlim=c(0,110), pch="-",col="white")
 lines(as.numeric(importance_df[1,]),ylim=c(0,20), pch="-",col=col[1])

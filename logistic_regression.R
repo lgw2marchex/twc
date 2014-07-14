@@ -3,12 +3,12 @@
 results_mtx = data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c("accuracy", "precision", "recall"))), stringsAsFactors=F)
 for (i in 1:100) {
   rand_sample <- sample(nrow(no_nas),length(rownames(no_nas))%/%2)
-  train <- no_nas[rand_sample,]
+  train <- no_nas[rand_sample,] 
   test <- no_nas[-rand_sample,]
   model <- glm(as.factor(converted)~conversation_switch_count,
                  family=binomial,data=train)
   predictions <- predict(model,newdata=test, type="response")
-  results <- test_results(predictions, test$converted,cutoff=.28)
+  results <- test_results(predictions, test$converted,cutoff=.2)
   df <- data.frame(accuracy=results["accuracy"],
                    precision=results["precision"],
                    recall=results["recall"])
