@@ -45,14 +45,14 @@ no_nas <- na.omit(no_nas)
 
 # make a tab-separated file that can be put into the extractWeka python script.
 
-# write.table(data.frame(rep("PFC",length(unique(twc_calls$call_id))),
-#   unique(twc_calls$call_id),
-#   rep("Unknown",length(unique(twc_calls$call_id)))),
-#   file="twc_calls_unique.csv",
-#   row.names=FALSE, 
-#   col.names=FALSE,
-#   sep="\t",
-#   quote=FALSE)
+write.table(data.frame(rep("PFC",length(unique(twc_calls$call_id))),
+  unique(twc_calls$call_id),
+  rep("eeee",length(unique(twc_calls$call_id)))),
+  file="blah.txt",
+  row.names=FALSE, 
+  col.names=FALSE,
+  sep="\t",
+  quote=FALSE)
 
 # these are the predictors from adt. but i'm taking is_billable and revenue out because
 # they are constant in this data set...
@@ -88,5 +88,4 @@ predictors_names <- c("conversation",
 predictors <- predictors_names[predictors_names %in% names(no_nas)]
 
 # missing caller_first_half_speech_ratio and analyzed_call_duration, so i'll add those...
-
 predictors <- c(predictors,"caller_first_half_speech_ratio","analyzed_call_duration")
